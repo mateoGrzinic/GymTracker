@@ -33,7 +33,9 @@ class MainActivity : ComponentActivity() {
                         onLoginClick = { currentScreen = "workout" }
                     )
 
-                    "workout" -> WorkoutScreen()
+                    "workout" -> WorkoutScreen(
+                        onSettingsClick = { currentScreen = "settings" }
+                    )
 
                     "settings" -> SettingsScreen(
                         darkMode = isDarkMode,

@@ -12,7 +12,7 @@ import androidx.compose.ui.unit.sp
 
 @Preview
 @Composable
-fun WorkoutScreen() {
+fun WorkoutScreen(onSettingsClick: () -> Unit) {
     var exerciseName by remember { mutableStateOf("") }
     var sets by remember { mutableStateOf("") }
     var reps by remember { mutableStateOf("") }
@@ -78,6 +78,15 @@ fun WorkoutScreen() {
                 .height(50.dp)
         ) {
             Text("Spremi trening")
+        }
+
+        Spacer(modifier = Modifier.height(16.dp))
+
+        Button(
+            onClick = onSettingsClick,
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            Text("Postavke")
         }
     }
 }

@@ -16,6 +16,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import com.example.gymtracker.ui.theme.GymTrackerTheme
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.*
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -23,11 +24,9 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         setContent {
             var isDarkMode by remember { mutableStateOf(false) }
+            var currentScreen by remember { mutableStateOf("login") }
 
             GymTrackerTheme(darkTheme = isDarkMode) {
-
-                var currentScreen by remember { mutableStateOf("login") }
-
                 when (currentScreen) {
                     "login" -> LoginScreen(
                         onLoginClick = { currentScreen = "workout" }
@@ -44,5 +43,5 @@ class MainActivity : ComponentActivity() {
                 }
             }
         }
+        }
     }
-}

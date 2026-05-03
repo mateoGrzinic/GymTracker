@@ -35,7 +35,7 @@ fun LoginScreen(onLoginClick: () -> Unit) {
         Text(
             text = "GymTracker",
             fontSize = 34.sp,
-            color = MaterialTheme.colorScheme.primary
+            color = MaterialTheme.colorScheme.onBackground
         )
 
         Spacer(modifier = Modifier.height(16.dp))
@@ -76,7 +76,10 @@ fun LoginScreen(onLoginClick: () -> Unit) {
                 .fillMaxWidth()
                 .height(50.dp)
         ) {
-            Text("Prijava")
+            Text(
+                text = "Prijava",
+                color = MaterialTheme.colorScheme.onBackground
+            )
         }
 
         Spacer(modifier = Modifier.height(12.dp))

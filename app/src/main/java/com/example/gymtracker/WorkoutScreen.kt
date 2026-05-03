@@ -9,8 +9,9 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.foundation.background
+import com.example.gymtracker.ui.theme.GymTrackerTheme
 
-@Preview
 @Composable
 fun WorkoutScreen(onSettingsClick: () -> Unit) {
     var exerciseName by remember { mutableStateOf("") }
@@ -21,13 +22,14 @@ fun WorkoutScreen(onSettingsClick: () -> Unit) {
     Column(
         modifier = Modifier
             .fillMaxSize()
+            .background(MaterialTheme.colorScheme.background)
             .padding(24.dp),
         verticalArrangement = Arrangement.Center
     ) {
         Text(
             text = "Unos treninga",
             fontSize = 30.sp,
-            color = MaterialTheme.colorScheme.primary
+            color = MaterialTheme.colorScheme.onBackground
         )
 
         Spacer(modifier = Modifier.height(24.dp))
@@ -77,7 +79,10 @@ fun WorkoutScreen(onSettingsClick: () -> Unit) {
                 .fillMaxWidth()
                 .height(50.dp)
         ) {
-            Text("Spremi trening")
+            Text(
+                text = "Spremi trening",
+                color = MaterialTheme.colorScheme.onBackground
+            )
         }
 
         Spacer(modifier = Modifier.height(16.dp))
@@ -86,7 +91,20 @@ fun WorkoutScreen(onSettingsClick: () -> Unit) {
             onClick = onSettingsClick,
             modifier = Modifier.fillMaxWidth()
         ) {
-            Text("Postavke")
+            Text(
+                text = "Postavke",
+                color = MaterialTheme.colorScheme.onBackground
+            )
         }
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+fun WorkoutScreenPreview() {
+    GymTrackerTheme {
+        WorkoutScreen(
+            onSettingsClick = {}
+        )
     }
 }

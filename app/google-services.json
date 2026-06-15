@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "124300546490",
+    "project_id": "fittracker-67461",
+    "storage_bucket": "fittracker-67461.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:124300546490:android:18d09b88c966ed1ed2cd83",
+        "android_client_info": {
+          "package_name": "com.example.gymtracker"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCQDRTsmRYy7gEn62PlGy7L9bnkpgyoMAc"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

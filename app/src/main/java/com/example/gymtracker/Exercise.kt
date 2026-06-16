@@ -2,6 +2,7 @@ package com.example.gymtracker
 
 data class Exercise(
     var id: String = "",
+    var userId: String = "",
     var name: String = "",
     var sets: Int = 0,
     var reps: Int = 0,

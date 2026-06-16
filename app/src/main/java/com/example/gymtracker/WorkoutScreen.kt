@@ -22,9 +22,9 @@ fun isValidExercise(name: String, sets: Int, reps: Int, weight: Double): Boolean
 @Composable
 fun WorkoutScreen(
     onSettingsClick: () -> Unit,
-    repository: FirestoreRepository = FirestoreRepository()  // default vrijednost
+    repository: FirestoreRepository = FirestoreRepository()
 ) {
-    val repository = remember { FirestoreRepository() }
+    val rememberedRepository = remember { repository }
     var exercises by remember { mutableStateOf(listOf<Exercise>()) }
 
     var exerciseName by remember { mutableStateOf("") }
@@ -32,9 +32,8 @@ fun WorkoutScreen(
     var reps by remember { mutableStateOf("") }
     var weight by remember { mutableStateOf("") }
 
-    // Učitavanje iz Firestorea u stvarnom vremenu
     LaunchedEffect(Unit) {
-        repository.getExercises { exercises = it }
+        rememberedRepository.getExercises { exercises = it }
     }
 
     Column(
@@ -92,7 +91,7 @@ fun WorkoutScreen(
                         reps = repsInt,
                         weight = weightDouble
                     )
-                    repository.addExercise(exercise)
+                    rememberedRepository.addExercise(exercise)
                     exerciseName = ""; sets = ""; reps = ""; weight = ""
                 }
             },
@@ -119,10 +118,15 @@ fun WorkoutScreen(
             items(exercises) { exercise ->
                 ExerciseItem(
                     exercise = exercise,
-                    onDelete = { repository.deleteExercise(exercise.id) },
-                    onToggleDone = {
-                        val updated = exercise.copy(isDone = !exercise.isDone)
-                        repository.updateExercise(updated)
+                    onDelete = { rememberedRepository.deleteExercise(exercise.id) },
+                    onToggleDone = { checked ->
+                        val updated = exercise.copy(isDone = checked)
+
+                        exercises = exercises.map {
+                            if (it.id == exercise.id) updated else it
+                        }
+
+                        rememberedRepository.updateExercise(updated)
                     }
                 )
             }
@@ -134,16 +138,24 @@ fun WorkoutScreen(
 fun ExerciseItem(
     exercise: Exercise,
     onDelete: () -> Unit,
-    onToggleDone: () -> Unit
+    onToggleDone: (Boolean) -> Unit
 ) {
     Card(
-        modifier = Modifier.fillMaxWidth().padding(vertical = 4.dp)
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(vertical = 4.dp)
     ) {
         Row(
             modifier = Modifier.padding(12.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            Checkbox(checked = exercise.isDone, onCheckedChange = { onToggleDone() })
+            Checkbox(
+                checked = exercise.isDone,
+                onCheckedChange = { checked ->
+                    onToggleDone(checked)
+                }
+            )
+
             Column(modifier = Modifier.weight(1f)) {
                 Text(text = exercise.name, fontSize = 16.sp)
                 Text(
@@ -151,6 +163,7 @@ fun ExerciseItem(
                     fontSize = 12.sp
                 )
             }
+
             IconButton(onClick = onDelete) {
                 Icon(Icons.Default.Delete, contentDescription = "Obriši")
             }

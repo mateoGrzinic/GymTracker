@@ -11,8 +11,11 @@ import com.example.gymtracker.ui.theme.GymTrackerTheme
 import androidx.compose.foundation.background
 
 @Composable
-fun SettingsScreen(darkMode: Boolean,
-                   onDarkModeChange: (Boolean) -> Unit) {
+fun SettingsScreen(
+    darkMode: Boolean,
+    onDarkModeChange: (Boolean) -> Unit,
+    onLogout: () -> Unit
+) {
     var reminders by remember { mutableStateOf(true) }
     var unit by remember { mutableStateOf("kg") }
     var goal by remember { mutableStateOf("Snaga") }
@@ -129,6 +132,20 @@ fun SettingsScreen(darkMode: Boolean,
         ) {
             Text("Obriši sve podatke")
         }
+
+        Spacer(modifier = Modifier.height(12.dp))
+
+        Button(
+            onClick = onLogout,
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(50.dp),
+            colors = ButtonDefaults.buttonColors(
+                containerColor = MaterialTheme.colorScheme.error
+            )
+        ) {
+            Text("Odjava")
+        }
     }
 }
 
@@ -171,7 +188,8 @@ fun SettingsScreenPreview() {
     GymTrackerTheme {
         SettingsScreen(
             darkMode = false,
-            onDarkModeChange = {}
+            onDarkModeChange = {},
+            onLogout = {}
         )
     }
 }

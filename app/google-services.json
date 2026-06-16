@@ -1,13 +1,13 @@
 {
   "project_info": {
-    "project_number": "124300546490",
-    "project_id": "fittracker-67461",
-    "storage_bucket": "fittracker-67461.firebasestorage.app"
+    "project_number": "147876419373",
+    "project_id": "gymtracker-ce688",
+    "storage_bucket": "gymtracker-ce688.firebasestorage.app"
   },
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:124300546490:android:18d09b88c966ed1ed2cd83",
+        "mobilesdk_app_id": "1:147876419373:android:99e08d3fad447cd03525a4",
         "android_client_info": {
           "package_name": "com.example.gymtracker"
         }
@@ -15,7 +15,7 @@
       "oauth_client": [],
       "api_key": [
         {
-          "current_key": "AIzaSyCQDRTsmRYy7gEn62PlGy7L9bnkpgyoMAc"
+          "current_key": "AIzaSyDaciY95xqFQW0Yu1Ofv9nAsAkOIcTRQIA"
         }
       ],
       "services": {

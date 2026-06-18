@@ -1,5 +1,6 @@
 package com.example.gymtracker
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -8,17 +9,28 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.tooling.preview.Preview
 import com.example.gymtracker.ui.theme.GymTrackerTheme
-import androidx.compose.foundation.background
 
 @Composable
 fun SettingsScreen(
     darkMode: Boolean,
     onDarkModeChange: (Boolean) -> Unit,
-    onLogout: () -> Unit
+    onLogout: () -> Unit,
+    repository: FirestoreRepository = FirestoreRepository()
 ) {
+    val rememberedRepository = remember { repository }
+
     var reminders by remember { mutableStateOf(true) }
     var unit by remember { mutableStateOf("kg") }
     var goal by remember { mutableStateOf("Snaga") }
+    var saveMessage by remember { mutableStateOf("") }
+
+    LaunchedEffect(Unit) {
+        rememberedRepository.getUserSettings { settings ->
+            unit = settings.unit
+            goal = settings.goal
+            onDarkModeChange(settings.darkMode)
+        }
+    }
 
     Column(
         modifier = Modifier
@@ -49,21 +61,8 @@ fun SettingsScreen(
             )
         }
 
-        Spacer(modifier = Modifier.height(16.dp))
 
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceBetween
-        ) {
-            Text(
-                text = "Podsjetnik za trening",
-                color = MaterialTheme.colorScheme.onBackground
-            )
-            Switch(
-                checked = reminders,
-                onCheckedChange = { reminders = it }
-            )
-        }
+
 
         Spacer(modifier = Modifier.height(24.dp))
 
@@ -84,7 +83,8 @@ fun SettingsScreen(
                 Text(
                     text = "kg",
                     color = MaterialTheme.colorScheme.onBackground,
-                    modifier = Modifier.padding(top = 12.dp))
+                    modifier = Modifier.padding(top = 12.dp)
+                )
             }
 
             Row {
@@ -95,7 +95,8 @@ fun SettingsScreen(
                 Text(
                     text = "lbs",
                     color = MaterialTheme.colorScheme.onBackground,
-                    modifier = Modifier.padding(top = 12.dp))
+                    modifier = Modifier.padding(top = 12.dp)
+                )
             }
         }
 
@@ -114,7 +115,19 @@ fun SettingsScreen(
         Spacer(modifier = Modifier.height(24.dp))
 
         Button(
-            onClick = { },
+            onClick = {
+                rememberedRepository.updateUserSettings(
+                    unit = unit,
+                    goal = goal,
+                    darkMode = darkMode
+                ) { success ->
+                    saveMessage = if (success) {
+                        "Postavke su spremljene"
+                    } else {
+                        "Greška kod spremanja postavki"
+                    }
+                }
+            },
             modifier = Modifier
                 .fillMaxWidth()
                 .height(50.dp)
@@ -122,16 +135,16 @@ fun SettingsScreen(
             Text("Spremi postavke")
         }
 
-        Spacer(modifier = Modifier.height(12.dp))
+        if (saveMessage.isNotEmpty()) {
+            Spacer(modifier = Modifier.height(8.dp))
 
-        OutlinedButton(
-            onClick = { },
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(50.dp)
-        ) {
-            Text("Obriši sve podatke")
+            Text(
+                text = saveMessage,
+                color = MaterialTheme.colorScheme.onBackground
+            )
         }
+
+
 
         Spacer(modifier = Modifier.height(12.dp))
 
@@ -189,7 +202,21 @@ fun SettingsScreenPreview() {
         SettingsScreen(
             darkMode = false,
             onDarkModeChange = {},
-            onLogout = {}
+            onLogout = {},
+            repository = object : FirestoreRepository() {
+                override fun getUserSettings(onResult: (UserSettings) -> Unit) {
+                    onResult(UserSettings(unit = "kg", goal = "Snaga"))
+                }
+
+                override fun updateUserSettings(
+                    unit: String,
+                    goal: String,
+                    darkMode: Boolean,
+                    onComplete: (Boolean) -> Unit
+                ) {
+                    onComplete(true)
+                }
+            }
         )
     }
 }

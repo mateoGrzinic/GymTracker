@@ -14,15 +14,32 @@ import com.example.gymtracker.ui.theme.GymTrackerTheme
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 
+fun convertHistoryWeightFromKg(weight: Double, unit: String): Double {
+    return if (unit == "lbs") {
+        weight * 2.20462
+    } else {
+        weight
+    }
+}
+
+fun formatHistoryWeight(weight: Double): String {
+    return if (weight % 1.0 == 0.0) {
+        weight.toInt().toString()
+    } else {
+        String.format("%.1f", weight)
+    }
+}
+
 @Composable
 fun WorkoutHistoryScreen() {
     var exercises by remember { mutableStateOf<List<Exercise>>(emptyList()) }
     var isLoading by remember { mutableStateOf(true) }
     var errorMessage by remember { mutableStateOf("") }
-
+    var unit by remember { mutableStateOf("kg") }
 
     val currentUser = FirebaseAuth.getInstance().currentUser
     val currentUid = currentUser?.uid
+    val db = FirebaseFirestore.getInstance()
 
     DisposableEffect(currentUid) {
         if (currentUid == null) {
@@ -30,7 +47,7 @@ fun WorkoutHistoryScreen() {
             isLoading = false
             onDispose { }
         } else {
-            val listener = FirebaseFirestore.getInstance()
+            val exercisesListener = db
                 .collection("workouts")
                 .whereEqualTo("userId", currentUid)
                 .addSnapshotListener { snapshot, error ->
@@ -64,8 +81,18 @@ fun WorkoutHistoryScreen() {
                     isLoading = false
                 }
 
+            val settingsListener = db
+                .collection("users")
+                .document(currentUid)
+                .addSnapshotListener { snapshot, error ->
+                    if (error != null) return@addSnapshotListener
+
+                    unit = snapshot?.getString("unit") ?: "kg"
+                }
+
             onDispose {
-                listener.remove()
+                exercisesListener.remove()
+                settingsListener.remove()
             }
         }
     }
@@ -74,7 +101,8 @@ fun WorkoutHistoryScreen() {
         exercises = exercises,
         isLoading = isLoading,
         errorMessage = errorMessage,
-        userEmail = currentUser?.email
+        userEmail = currentUser?.email,
+        unit = unit
     )
 }
 
@@ -83,7 +111,8 @@ fun WorkoutHistoryContent(
     exercises: List<Exercise>,
     isLoading: Boolean,
     errorMessage: String,
-    userEmail: String?
+    userEmail: String?,
+    unit: String
 ) {
     Column(
         modifier = Modifier
@@ -127,6 +156,8 @@ fun WorkoutHistoryContent(
 
             else -> {
                 exercises.forEach { exercise ->
+                    val displayedWeight = convertHistoryWeightFromKg(exercise.weight, unit)
+
                     Card(
                         modifier = Modifier
                             .fillMaxWidth()
@@ -143,7 +174,7 @@ fun WorkoutHistoryContent(
 
                             Text("Serije: ${exercise.sets}")
                             Text("Ponavljanja: ${exercise.reps}")
-                            Text("Težina: ${exercise.weight} kg")
+                            Text("Težina: ${formatHistoryWeight(displayedWeight)} $unit")
                             Text(
                                 text = "Status: ${
                                     if (exercise.isDone) "odrađeno" else "nije odrađeno"
@@ -173,7 +204,8 @@ fun WorkoutHistoryScreenPreview() {
             ),
             isLoading = false,
             errorMessage = "",
-            userEmail = "mateo@gymtracker.com"
+            userEmail = "mateo@gymtracker.com",
+            unit = "kg"
         )
     }
 }

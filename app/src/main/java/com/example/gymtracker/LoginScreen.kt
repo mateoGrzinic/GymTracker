@@ -14,12 +14,14 @@ import com.example.gymtracker.ui.theme.GymTrackerTheme
 
 @Composable
 fun LoginScreen(
-    onLoginClick: () -> Unit
+    onLoginClick: (UserSettings) -> Unit,
+    repository: FirestoreRepository = FirestoreRepository()
 ) {
     var email by remember { mutableStateOf("mateo@gymtracker.com") }
     var password by remember { mutableStateOf("mateo123") }
     var errorMessage by remember { mutableStateOf("") }
     var isLoading by remember { mutableStateOf(false) }
+    val rememberedRepository = remember { repository }
 
     Column(
         modifier = Modifier
@@ -63,8 +65,10 @@ fun LoginScreen(
                 FirebaseAuth.getInstance()
                     .signInWithEmailAndPassword(email, password)
                     .addOnSuccessListener {
-                        isLoading = false
-                        onLoginClick()
+                        rememberedRepository.getUserSettings { settings ->
+                            isLoading = false
+                            onLoginClick(settings)
+                        }
                     }
                     .addOnFailureListener { exception ->
                         isLoading = false

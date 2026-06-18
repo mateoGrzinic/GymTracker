@@ -6,6 +6,13 @@ import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.padding
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.FitnessCenter
+import androidx.compose.material.icons.filled.History
+import androidx.compose.material.icons.filled.Person
+import androidx.compose.material.icons.filled.Settings
+import androidx.compose.material.icons.filled.TrendingUp
+import androidx.compose.material3.Icon
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.Scaffold
@@ -14,13 +21,6 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import com.example.gymtracker.ui.theme.GymTrackerTheme
 import com.google.firebase.auth.FirebaseAuth
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.FitnessCenter
-import androidx.compose.material.icons.filled.Person
-import androidx.compose.material.icons.filled.TrendingUp
-import androidx.compose.material.icons.filled.History
-import androidx.compose.material.icons.filled.Settings
-import androidx.compose.material3.Icon
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -34,11 +34,14 @@ class MainActivity : ComponentActivity() {
             var isDarkMode by remember { mutableStateOf(false) }
             var isLoggedIn by remember { mutableStateOf(false) }
             var currentScreen by remember { mutableStateOf("workout") }
+            var currentUserSettings by remember { mutableStateOf(UserSettings()) }
 
             GymTrackerTheme(darkTheme = isDarkMode) {
                 if (!isLoggedIn) {
                     LoginScreen(
-                        onLoginClick = {
+                        onLoginClick = { settings ->
+                            currentUserSettings = settings
+                            isDarkMode = settings.darkMode
                             isLoggedIn = true
                             currentScreen = "workout"
                         }
@@ -128,6 +131,8 @@ class MainActivity : ComponentActivity() {
                                     onDarkModeChange = { isDarkMode = it },
                                     onLogout = {
                                         FirebaseAuth.getInstance().signOut()
+                                        currentUserSettings = UserSettings()
+                                        isDarkMode = false
                                         isLoggedIn = false
                                         currentScreen = "workout"
                                     }

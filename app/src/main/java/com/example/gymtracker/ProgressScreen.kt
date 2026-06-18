@@ -3,7 +3,7 @@ package com.example.gymtracker
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*
-import androidx.compose.runtime.Composable
+import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -16,37 +16,76 @@ data class ProgressStat(
     val description: String
 )
 
-fun calculateWeeklyCompletion(completedWorkouts: Int, plannedWorkouts: Int): Int {
+fun calculateCompletion(completedWorkouts: Int, plannedWorkouts: Int): Int {
     if (plannedWorkouts <= 0) return 0
     return ((completedWorkouts.toDouble() / plannedWorkouts.toDouble()) * 100).toInt()
 }
 
-fun defaultProgressStats(): List<ProgressStat> {
-    val completed = 3
-    val planned = 4
-    val completion = calculateWeeklyCompletion(completed, planned)
+fun convertWeightFromKg(weight: Double, unit: String): Double {
+    return if (unit == "lbs") {
+        weight * 2.20462
+    } else {
+        weight
+    }
+}
+
+fun calculateProgressStats(exercises: List<Exercise>, unit: String): List<ProgressStat> {
+    val completed = exercises.count { it.isDone }
+    val planned = exercises.size
+    val completion = calculateCompletion(completed, planned)
+
+    val totalVolumeKg = exercises
+        .filter { it.isDone }
+        .sumOf { it.sets * it.reps * it.weight }
+
+    val totalVolume = convertWeightFromKg(totalVolumeKg, unit)
 
     return listOf(
         ProgressStat(
-            "Odrađeni treninzi",
-            "$completed / $planned",
-            "Broj odrađenih treninga ovaj tjedan"
+            title = "Odrađene vježbe",
+            value = "$completed / $planned",
+            description = "Ukupni broj odrađenih vježbi"
         ),
         ProgressStat(
-            "Tjedni napredak",
-            "$completion%",
-            "Postotak realizacije plana"
+            title = "Napredak",
+            value = "$completion%",
+            description = "Postotak odrađenih vježbi"
         ),
         ProgressStat(
-            "Ukupan volumen",
-            "2400 kg",
-            "Zbroj težina iz zadnjih treninga"
+            title = "Ukupan volumen",
+            value = "${totalVolume.toInt()} $unit",
+            description = "Zbroj svih dignutih težina"
         )
     )
 }
 
 @Composable
-fun ProgressScreen(stats: List<ProgressStat> = defaultProgressStats()) {
+fun ProgressScreen(
+    repository: FirestoreRepository = FirestoreRepository()
+) {
+    val rememberedRepository = remember { repository }
+
+    var exercises by remember { mutableStateOf(listOf<Exercise>()) }
+    var unit by remember { mutableStateOf("kg") }
+
+    LaunchedEffect(Unit) {
+        rememberedRepository.getExercises { exercises = it }
+
+        rememberedRepository.getUserSettings { settings ->
+            unit = settings.unit
+        }
+    }
+
+    ProgressContent(
+        stats = calculateProgressStats(
+            exercises = exercises,
+            unit = unit
+        )
+    )
+}
+
+@Composable
+fun ProgressContent(stats: List<ProgressStat>) {
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -91,6 +130,15 @@ fun ProgressScreen(stats: List<ProgressStat> = defaultProgressStats()) {
 @Composable
 fun ProgressScreenPreview() {
     GymTrackerTheme {
-        ProgressScreen()
+        ProgressContent(
+            stats = calculateProgressStats(
+                exercises = listOf(
+                    Exercise(name = "Bench Press", sets = 3, reps = 10, weight = 80.0, isDone = true),
+                    Exercise(name = "Squat", sets = 4, reps = 8, weight = 100.0, isDone = false),
+                    Exercise(name = "Deadlift", sets = 3, reps = 5, weight = 120.0, isDone = true)
+                ),
+                unit = "kg"
+            )
+        )
     }
 }

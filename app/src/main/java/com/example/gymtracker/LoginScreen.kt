@@ -17,8 +17,8 @@ fun LoginScreen(
     onLoginClick: (UserSettings) -> Unit,
     repository: FirestoreRepository = FirestoreRepository()
 ) {
-    var email by remember { mutableStateOf("mateo@gymtracker.com") }
-    var password by remember { mutableStateOf("mateo123") }
+    var email by remember { mutableStateOf("") }
+    var password by remember { mutableStateOf("") }
     var errorMessage by remember { mutableStateOf("") }
     var isLoading by remember { mutableStateOf(false) }
     val rememberedRepository = remember { repository }
@@ -100,7 +100,7 @@ fun LoginScreen(
 fun LoginScreenPreview() {
     GymTrackerTheme {
         LoginScreen(
-            onLoginClick = {}
+            onLoginClick = { _ -> }
         )
     }
 }
